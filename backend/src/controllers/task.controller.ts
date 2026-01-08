@@ -1,43 +1,112 @@
+import { Request, Response } from "express";
 import prisma from "../prisma.js";
 
-export const getTasks = async (req: any, res: any) => {
-  const tasks = await prisma.task.findMany({
-    where: { userId: req.user.userId },
-  });
-  res.json(tasks);
+// Custom interface to handle the user object attached by auth middleware
+interface AuthRequest extends Request {
+  user?: {
+    userId: number;
+  };
+}
+
+export const getTasks = async (req: any, res: Response) => {
+  try {
+    const tasks = await prisma.task.findMany({
+      where: { userId: req.user.userId },
+    });
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({
+      message: "Failed to fetch tasks",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
 };
 
-export const createTask = async (req: any, res: any) => {
-  const { title, description } = req.body;
+export const createTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const { title, description } = req.body;
 
-  const task = await prisma.task.create({
-    data: {
-      title,
-      description,
-      userId: req.user.userId,
-    },
-  });
+    if (!title) {
+      return res.status(400).json({ message: "Title is required" });
+    }
 
-  res.status(201).json(task);
+    const task = await prisma.task.create({
+      data: {
+        title,
+        description,
+        userId: req.user!.userId,
+      },
+    });
+
+    res.status(201).json(task);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to create task" });
+  }
 };
 
-export const updateTask = async (req: any, res: any) => {
-  const { id } = req.params;
+export const updateTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!.userId;
 
-  const task = await prisma.task.update({
-    where: { id: Number(id) },
-    data: req.body,
-  });
+    // 1. Verify ownership before updating
+    const existingTask = await prisma.task.findUnique({
+      where: { id: Number(id) },
+    });
 
-  res.json(task);
+    if (!existingTask) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    if (existingTask.userId !== userId) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to update this task" });
+    }
+
+    // 2. Perform update
+    const updatedTask = await prisma.task.update({
+      where: { id: Number(id) },
+      data: req.body,
+    });
+
+    res.json(updatedTask);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating task" });
+  }
 };
 
-export const deleteTask = async (req: any, res: any) => {
-  const { id } = req.params;
+export const deleteTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!.userId;
 
-  await prisma.task.delete({
-    where: { id: Number(id) },
-  });
+    // 1. Check if task exists and belongs to the user
+    const task = await prisma.task.findUnique({
+      where: { id: Number(id) },
+    });
 
-  res.json({ message: "Task deleted" });
+    if (!task) {
+      return res
+        .status(404)
+        .json({ message: "Task not found and cannot be deleted" });
+    }
+
+    if (task.userId !== userId) {
+      return res
+        .status(403)
+        .json({ message: "You do not have permission to delete this task" });
+    }
+
+    // 2. Delete
+    await prisma.task.delete({
+      where: { id: Number(id) },
+    });
+
+    res.json({ message: "Task successfully deleted" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "An error occurred while deleting the task" });
+  }
 };
