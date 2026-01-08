@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../prisma.js";
 
-// Custom interface to handle the user object attached by auth middleware
+
 interface AuthRequest extends Request {
   user?: {
     userId: number;
@@ -48,8 +48,6 @@ export const updateTask = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const userId = req.user!.userId;
-
-    // 1. Verify ownership before updating
     const existingTask = await prisma.task.findUnique({
       where: { id: Number(id) },
     });
@@ -64,7 +62,6 @@ export const updateTask = async (req: AuthRequest, res: Response) => {
         .json({ message: "Not authorized to update this task" });
     }
 
-    // 2. Perform update
     const updatedTask = await prisma.task.update({
       where: { id: Number(id) },
       data: req.body,
@@ -81,7 +78,7 @@ export const deleteTask = async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const userId = req.user!.userId;
 
-    // 1. Check if task exists and belongs to the user
+
     const task = await prisma.task.findUnique({
       where: { id: Number(id) },
     });
@@ -98,7 +95,6 @@ export const deleteTask = async (req: AuthRequest, res: Response) => {
         .json({ message: "You do not have permission to delete this task" });
     }
 
-    // 2. Delete
     await prisma.task.delete({
       where: { id: Number(id) },
     });
