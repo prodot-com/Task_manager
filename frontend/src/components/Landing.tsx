@@ -202,20 +202,29 @@ const AuthModal = ({ type, onClose, setView }: any) => {
   });
 
   const onSubmit = async (data: any) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const endpoint = isLogin ? "/auth/login" : "/auth/register";
-      const res = await api.post(endpoint, data);
-      dispatch(loginSuccess(res.data.data.token));
-      onClose();
+  setIsLoading(true);
+  setError(null);
+
+  try {
+    const endpoint = isLogin ? "/auth/login" : "/auth/register";
+    const res = await api.post(endpoint, data);
+
+    dispatch(loginSuccess(res.data.data.token));
+    onClose();
+
+    if (isLogin) {
       navigate("/dashboard");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Authentication failed. Please check your credentials.");
-    } finally {
-      setIsLoading(false);
     }
-  };
+  } catch (err: any) {
+    setError(
+      err.response?.data?.message ||
+        "Authentication failed. Please check your credentials."
+    );
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <motion.div 
