@@ -6,7 +6,7 @@ import taskRoutes from "./routes/tasks.routes.js";
 const app = express();
 
 const allowedOrigins = [
-  "https://nexus-task-manager.vercel.app/",
+  "https://nexus-task-manager.vercel.app",
   "http://localhost:5173",
 ];
 
