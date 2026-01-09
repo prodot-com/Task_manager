@@ -8,7 +8,7 @@ The application uses **JWT authentication**, **protected routes**, and supports 
 ## 🌍 Live Deployment
 
 - **Frontend (Vercel)**  
-  👉 https://task-manager-rs7e.vercel.app  (Full working application here)
+  👉 https://nexus-task-manager.vercel.app/  (Full working application here)
 
 - **Backend (Render)**  
   👉 https://task-manager-em00.onrender.com
