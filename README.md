@@ -1,4 +1,4 @@
-# 🗂️ Task Management Application (Full Stack)
+# Task Management Application
 
 A full-stack task management application where users can register, log in, and manage their own tasks.  
 The application uses **JWT authentication**, **protected routes**, and supports full **CRUD operations** on tasks.
@@ -18,16 +18,16 @@ The application uses **JWT authentication**, **protected routes**, and supports 
 ## 🚀 Technology Stack
 
 ### Frontend
-- React (Vite)
+- React
 - TypeScript
 - Tailwind CSS
 - Redux Toolkit
 - Axios
-- React Hook Form + Zod
+- Zod
 
 ### Backend
 - Node.js + Express
-- TypeScript (ESM)
+- TypeScript
 - Prisma ORM
 - PostgreSQL
 - JWT Authentication
@@ -36,7 +36,6 @@ The application uses **JWT authentication**, **protected routes**, and supports 
 ---
 
 ## 📁 Project Structure
-
 ![BackendFileStucture](public/backend.png)
 ![FrontendFileStucture](public/frontend.png)
 
